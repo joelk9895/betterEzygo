@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: var(--font-instrument-sans);
+  --font-serif: var(--font-playfair);
+  --background: #ffffff;
+  --foreground: #0d0d0d;
+  --neopop-black: #0d0d0d;
+  --neopop-dark: #121212;
+  --neopop-gray: #1e1e1e;
+  --neopop-light: #2a2a2a;
+  --neopop-accent: #4f46e5;
+  --neopop-accent-dark: #4338ca;
+  --neopop-accent-light: #6366f1;
+  --neopop-danger: #e02d3c;
+  --neopop-warning: #f59e0b;
+  --neopop-success: #15803d;
+  --neopop-text: #ffffff;
+  --neopop-text-secondary: #a0a0a0;
+  --neopop-shadow-offset: 4px;
+}
+
+body {
+  background-color: #ffffff;
+  color: #0d0d0d;
+}
+
+/* Shimmer animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress bar animation */
+@keyframes progress-fill {
+  from { width: 0; }
+  to { width: var(--percent); }
+}
+
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill {
+  animation: progress-fill 1s ease-out forwards;
+}
+
+/* Fade in animation for cards */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+.neopop-card {
+  background-color: var(--neopop-dark);
+  border: 1px solid var(--neopop-light);
+  box-shadow: 4px 4px 0 0 var(--neopop-accent);
+  transition: all 0.2s ease;
+}
+
+.neopop-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 var(--neopop-accent);
+}
+
+.neopop-button {
+  background-color: var(--neopop-accent);
+  color: var(--neopop-black);
+  font-weight: 600;
+  box-shadow: 3px 3px 0 0 var(--neopop-accent-dark);
+  transition: all 0.2s ease;
+}
+
+.neopop-button:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 0 var(--neopop-accent-dark);
+}
+
+.neopop-danger {
+  box-shadow: 4px 4px 0 0 var(--neopop-danger);
+}
+
+.neopop-warning {
+  box-shadow: 4px 4px 0 0 var(--neopop-warning);
+}
+
+.neopop-success {
+  box-shadow: 4px 4px 0 0 var(--neopop-success);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
