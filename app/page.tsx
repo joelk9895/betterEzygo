@@ -195,7 +195,7 @@ export default function Home() {
     if (typeof window !== 'undefined') {
       // Check if the app is already installed
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-        // @ts-ignore - Safari specific property
+      //@ts-expect-error
         window.navigator.standalone === true;
       
       // Listen for the beforeinstallprompt event
@@ -203,7 +203,7 @@ export default function Home() {
         // Prevent the mini-infobar from appearing on mobile
         e.preventDefault();
         // Store the event so it can be triggered later
-        // @ts-ignore - Custom event type
+        //@ts-expect-error
         setInstallPrompt(e);
         // Show the install button
         setIsInstallable(true);

@@ -27,8 +27,8 @@ export default function LoginPage() {
       } else {
         setError(data.message || "Login failed");
       }
-    } catch (err: any) {
-      setError(err.message || "Network error");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Network error");
     }
     
     setLoading(false);

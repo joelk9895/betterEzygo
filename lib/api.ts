@@ -83,8 +83,8 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
     }
     
     return data;
-  } catch (_error) {
-    return { success: false, message: 'Network error' };
+  } catch (_error: unknown) {
+    return { success: false, message: `Network error ${_error}` };
   }
 }
 
@@ -112,8 +112,9 @@ async function refreshToken(): Promise<boolean> {
     
     isRefreshing = false;
     return !!response.access_token;
-  } catch (_error) {
+  } catch (_error: unknown) {
     isRefreshing = false;
+    console.error('Token refresh failed:', _error);
     return false;
   }
 }
