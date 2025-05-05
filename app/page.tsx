@@ -5,8 +5,23 @@ import { useRouter } from "next/navigation";
 
 
 
-function CourseCard({ course }: { course: any }) {
-  const [attendance, setAttendance] = useState<any>(null);
+// Import the Course type from the API to ensure consistency
+import type { Course as ApiCourse } from '@/lib/api';
+
+// Use the API's Course type with a type alias
+type Course = ApiCourse;
+
+function CourseCard({ course }: { course: Course }) {
+  const [attendance, setAttendance] = useState<{
+    present: number;
+    absent: number;
+    totel: number;
+    persantage: number;
+    course?: {
+      name: string;
+      code: string;
+    };
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -20,17 +35,18 @@ function CourseCard({ course }: { course: any }) {
         const { getCourseAttendance } = await import('@/lib/api');
         
         // Fetch attendance data using our API library
-        const data = await getCourseAttendance(course.id);
+        // Convert string ID to number for the API call
+        const data = await getCourseAttendance(parseInt(course.id, 10));
         setAttendance(data);
-      } catch (e: any) {
-        setError(e.message || "Error fetching attendance");
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Error fetching attendance");
       }
       
       setLoading(false);
     };
     
     fetchAttendance();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // We only want to run this effect when the course.id changes
   }, [course.id]);
 
   let percent = 0;
@@ -156,12 +172,15 @@ function CourseCard({ course }: { course: any }) {
 
 export default function Home() {
   const router = useRouter();
-  const [courses, setCourses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
   const [coursesError, setCoursesError] = useState("");
   const [userProfile, setUserProfile] = useState<{first_name: string; last_name: string} | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [installPrompt, setInstallPrompt] = useState<{
+    prompt: () => void;
+    userChoice: Promise<{ outcome: string }>;
+  } | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
 
   // Redirect to login if not authenticated
@@ -175,13 +194,16 @@ export default function Home() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Check if the app is already installed
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+        // @ts-ignore - Safari specific property
+        window.navigator.standalone === true;
       
       // Listen for the beforeinstallprompt event
-      window.addEventListener('beforeinstallprompt', (e: any) => {
+      window.addEventListener('beforeinstallprompt', (e: Event) => {
         // Prevent the mini-infobar from appearing on mobile
         e.preventDefault();
         // Store the event so it can be triggered later
+        // @ts-ignore - Custom event type
         setInstallPrompt(e);
         // Show the install button
         setIsInstallable(true);
@@ -250,8 +272,8 @@ export default function Home() {
         // Fetch courses using our API library
         const data = await getCourses();
         setCourses(data);
-      } catch (e: any) {
-        setCoursesError(e.message || "Error fetching courses");
+      } catch (e: unknown) {
+        setCoursesError(e instanceof Error ? e.message : "Error fetching courses");
       }
       
       setLoadingCourses(false);
@@ -356,7 +378,7 @@ export default function Home() {
             </div>
           ) : courses && courses.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2">
-              {courses.map((course: any, index: number) => (
+              {courses.map((course, index) => (
                 <div key={course.id} className="animate-fadeIn" style={{ animationDelay: `${index * 100}ms` }}>
                   <CourseCard course={course} />
                 </div>

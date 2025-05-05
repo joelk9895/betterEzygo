@@ -83,7 +83,7 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
     }
     
     return data;
-  } catch (error) {
+  } catch (_error) {
     return { success: false, message: 'Network error' };
   }
 }
@@ -112,7 +112,7 @@ async function refreshToken(): Promise<boolean> {
     
     isRefreshing = false;
     return !!response.access_token;
-  } catch (error) {
+  } catch (_error) {
     isRefreshing = false;
     return false;
   }
@@ -171,9 +171,9 @@ async function authenticatedRequest<T>(url: string, options: RequestInit = {}): 
     // Parse and return the data
     const data = await response.json();
     return data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API request failed:', error);
-    throw new Error(error.message || 'API request failed');
+    throw new Error(error instanceof Error ? error.message : 'API request failed');
   }
 }
 
@@ -184,8 +184,8 @@ export async function getCourses(): Promise<Course[]> {
   try {
     const data = await authenticatedRequest<Course[]>(`${API_BASE_URL}/institutionuser/courses/withusers`);
     return data || [];
-  } catch (error: any) {
-    throw new Error(error.message || 'Error fetching courses');
+  } catch (error: unknown) {
+    throw new Error(error instanceof Error ? error.message : 'Error fetching courses');
   }
 }
 
@@ -198,8 +198,8 @@ export async function getCourseAttendance(courseId: number): Promise<AttendanceD
       `${API_BASE_URL}/attendancereports/institutionuser/courses/${courseId}/summery`
     );
     return data;
-  } catch (error: any) {
-    throw new Error(error.message || 'Error fetching attendance');
+  } catch (error: unknown) {
+    throw new Error(error instanceof Error ? error.message : 'Error fetching attendance');
   }
 }
 
