@@ -243,3 +243,45 @@ export const logout = (): void => {
   localStorage.removeItem(USERNAME_KEY);
   localStorage.removeItem(PASSWORD_KEY);
 };
+
+/**
+ * Set default semester setting
+ */
+export const setDefaultSemester = async (semesterId: string = "0"): Promise<any> => {
+  try {
+    const data = await authenticatedRequest(
+      `${API_BASE_URL}/user/setting/default_semester`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ default_semester: semesterId }),
+      }
+    );
+    return data;
+  } catch (error: unknown) {
+    throw new Error(error instanceof Error ? error.message : 'Error setting default semester');
+  }
+};
+
+/**
+ * Set default academic year setting
+ */
+export const setDefaultAcademicYear = async (academicYearId: string = "0"): Promise<any> => {
+  try {
+    const data = await authenticatedRequest(
+      `${API_BASE_URL}/user/setting/default_academic_year`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ default_academic_year: academicYearId }),
+      }
+    );
+    return data;
+  } catch (error: unknown) {
+    throw new Error(error instanceof Error ? error.message : 'Error setting default academic year');
+  }
+};

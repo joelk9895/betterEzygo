@@ -1,13 +1,23 @@
 "use client";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [redirectPath, setRedirectPath] = useState("/");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  useEffect(() => {
+    // Check if there's a redirect parameter in the URL
+    const redirect = searchParams.get('redirect');
+    if (redirect) {
+      setRedirectPath(redirect);
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +33,7 @@ export default function LoginPage() {
       
       if (data.access_token) {
         localStorage.setItem('access_token', data.access_token);
-        router.replace("/");
+        router.replace(redirectPath);
       } else {
         setError(data.message || "Login failed");
       }
@@ -92,7 +102,7 @@ export default function LoginPage() {
           </button>
           
           <footer className="w-full max-w-4xl mx-auto py-6 text-center text-gray-400 text-xs mt-auto font-[family-name:var(--font-instrument-sans)] border-t border-gray-200">
-        &copy; {new Date().getFullYear()} Better Ezygo Dashboard <span className="text-[var(--neopop-accent)]">Made with ❤️ by Joel K George</span>
+        &copy; {new Date().getFullYear()} Better Ezygo Dashboard <br/> <span className="text-[var(--neopop-accent)]">Made with ❤️ by Joel K George</span>
       </footer>
         </form>
       </div>

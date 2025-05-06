@@ -2,8 +2,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-
+import { motion, AnimatePresence } from "framer-motion";
 
 // Import the Course type from the API to ensure consistency
 import type { Course as ApiCourse } from '@/lib/api';
@@ -63,24 +62,32 @@ function CourseCard({ course }: { course: Course }) {
     total = attendance.totel ?? 0;
     percent = attendance.persantage ? Math.round(attendance.persantage) : (total > 0 ? Math.round((present / total) * 100) : 0);
     
-    // Calculate how many classes can be skipped while maintaining 75% attendance
+    // Calculate how many classes can be skipped while maintaining the cutoff percentage attendance
     if (total > 0) {
+      // Get the cutoff percentage from localStorage or use default
+      let cutoffDecimal = 0.75; // Default 75%
+      if (typeof window !== "undefined") {
+        const savedCutoff = localStorage.getItem("cutoff_percentage");
+        if (savedCutoff) {
+          cutoffDecimal = parseInt(savedCutoff, 10) / 100;
+        }
+      }
+      
       // When a student skips a class, it increases the total classes (denominator)
       // and doesn't increase present classes (numerator)
-      // Formula: present / (total + skippable) >= 0.75
-      // Solving for skippable: present / (total + skippable) = 0.75
-      // present = 0.75 * (total + skippable)
-      // present / 0.75 = total + skippable
-      // skippable = present / 0.75 - total
+      // Formula: present / (total + skippable) >= cutoffDecimal
+      // Solving for skippable: present / (total + skippable) = cutoffDecimal
+      // present = cutoffDecimal * (total + skippable)
+      // present / cutoffDecimal = total + skippable
+      // skippable = present / cutoffDecimal - total
       
       // We use Math.floor to be conservative (always round down)
-      const maxSkippable = Math.floor((present / 0.75) - total);
+      const maxSkippable = Math.floor((present / cutoffDecimal) - total);
       skippableClasses = Math.max(0, maxSkippable);
     }
     
     if (attendance.course) {
       courseName = attendance.course.name || courseName;
-      courseCode = attendance.course.code || courseCode;
     }
   }
 
@@ -182,6 +189,8 @@ export default function Home() {
     userChoice: Promise<{ outcome: string }>;
   } | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
+  const [cutoffPercentage, setCutoffPercentage] = useState(75); // Default cutoff is 75%
+  const [isEditingCutoff, setIsEditingCutoff] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -189,6 +198,16 @@ export default function Home() {
       router.replace("/login");
     }
   }, [router]);
+
+  // Load custom cutoff percentage from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedCutoff = localStorage.getItem("cutoff_percentage");
+      if (savedCutoff) {
+        setCutoffPercentage(parseInt(savedCutoff, 10));
+      }
+    }
+  }, []);
   
   // Handle PWA installation
   useEffect(() => {
@@ -317,16 +336,133 @@ export default function Home() {
           </button>
         )}
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 font-[family-name:var(--font-playfair)] italic">Attendance</h1>
-        <div className="h-1 w-16 bg-[var(--neopop-accent)] rounded-full my-2"></div>
-        <span className="text-base text-gray-500 font-[family-name:var(--font-instrument-sans)] tracking-wide">
-          {loadingProfile ? (
-            <span className="inline-block w-32 h-5 shimmer rounded-md"></span>
-          ) : userProfile ? (
-            <>Welcome, <span className="text-gray-700 font-medium">{userProfile.first_name} {userProfile.last_name}</span></>
-          ) : (
-            <>Welcome, <span className="text-gray-700 font-medium">Student</span></>
-          )}
-        </span>
+        <div className="w-full max-w-4xl mx-auto py-6 flex flex-col items-center justify-between border-b border-gray-200 mb-8">
+          <span className="text-lg text-gray-600 font-[family-name:var(--font-instrument-sans)] mb-4">
+            {loadingProfile ? (
+              <span className="inline-block w-32 h-5 shimmer rounded-md"></span>
+            ) : userProfile ? (
+              <>Welcome, <span className="text-gray-700 font-medium">{userProfile.first_name} {userProfile.last_name}</span></>
+            ) : (
+              <>Welcome, <span className="text-gray-700 font-medium">Student</span></>
+            )}
+          </span>
+          
+          <AnimatePresence mode="wait">
+            {isEditingCutoff ? (
+              <motion.div 
+                key="editing"
+                initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                className="w-full max-w-sm bg-white p-4 rounded-lg shadow-sm"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-sm text-gray-700 font-medium font-[family-name:var(--font-instrument-sans)]">
+                    Attendance Cutoff: <span className="font-semibold text-[var(--neopop-accent)]">{cutoffPercentage}%</span>
+                  </label>
+                  <div className="flex gap-1.5">
+                    <motion.button 
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        localStorage.setItem("cutoff_percentage", cutoffPercentage.toString());
+                        setIsEditingCutoff(false);
+                      }}
+                      className="text-xs bg-[var(--neopop-accent)] text-white px-2 py-1 rounded hover:bg-opacity-90 transition-colors font-medium flex items-center gap-1"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                      Save
+                    </motion.button>
+                    <motion.button 
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setIsEditingCutoff(false)}
+                      className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded hover:bg-gray-200 transition-colors font-medium"
+                    >
+                      Cancel
+                    </motion.button>
+                  </div>
+                </div>
+                
+                <div className="relative w-full h-10 flex items-center mt-2">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: '100%' }}
+                    transition={{ delay: 0.2, duration: 0.3 }}
+                    className="w-full relative"
+                  >
+                    {/* Custom track background */}
+                    <div 
+                      className="absolute h-2 bg-gray-200 rounded-full w-full top-1/2 -translate-y-1/2 pointer-events-none"
+                    ></div>
+                    
+                    {/* Filled track portion */}
+                    <div 
+                      className="absolute h-2 bg-[var(--neopop-accent)] rounded-full top-1/2 -translate-y-1/2 pointer-events-none"
+                      style={{ width: `${(cutoffPercentage - 50) / (100 - 50) * 100}%` }}
+                    ></div>
+                    
+                    <input 
+                      type="range" 
+                      min="50" 
+                      max="100"
+                      step="1"
+                      value={cutoffPercentage}
+                      onChange={(e) => setCutoffPercentage(parseInt(e.target.value, 10))} 
+                      className="w-full h-5 absolute top-0 opacity-0 cursor-pointer z-10"
+                    />
+                    
+                    {/* Custom thumb */}
+                    <div 
+                      className="absolute h-5 w-5 rounded-full bg-white border-2 border-[var(--neopop-accent)] shadow-md top-1/2 -translate-y-1/2 pointer-events-none"
+                      style={{ left: `calc(${(cutoffPercentage - 50) / (100 - 50) * 100}% - ${(cutoffPercentage - 50) / (100 - 50) * 10}px)` }}
+                    ></div>
+                  </motion.div>
+                  
+                  {/* Tick marks */}
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4, duration: 0.3 }}
+                    className="absolute w-full flex justify-between text-xs text-gray-500 -bottom-4 px-1 font-[family-name:var(--font-instrument-sans)]"
+                  >
+                    <span>50%</span>
+                    <span>75%</span>
+                    <span>100%</span>
+                  </motion.div>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.button 
+                key="non-editing"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                whileHover={{ scale: 1.03, boxShadow: "0 4px 6px rgba(0, 0, 0, 0.05)" }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                onClick={() => setIsEditingCutoff(true)}
+                className="flex items-center gap-2 bg-white py-1.5 px-3 rounded-full border border-gray-200 font-[family-name:var(--font-instrument-sans)]"
+              >
+                <span className="text-sm text-gray-600">Attendance Cutoff: </span>
+                <span className="font-semibold text-[var(--neopop-accent)]">
+                  {cutoffPercentage}%
+                </span>
+                <motion.svg 
+                  whileHover={{ rotate: 15 }}
+                  className="w-3.5 h-3.5 text-gray-500" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </motion.svg>
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
       </header>
 
       {/* Course List */}
@@ -394,7 +530,7 @@ export default function Home() {
       </main>
       
       <footer className="w-full max-w-4xl mx-auto py-6 text-center text-gray-400 text-xs mt-auto font-[family-name:var(--font-instrument-sans)] border-t border-gray-200">
-      &copy; {new Date().getFullYear()} Better Ezygo Dashboard <span className="text-[var(--neopop-accent)]">Made with ❤️ by Joel K George</span>
+      &copy; {new Date().getFullYear()} Better Ezygo Dashboard <br/> <span className="text-[var(--neopop-accent)]">Made with ❤️ by Joel K George</span>
       </footer>
     </div>
   );

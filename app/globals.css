@@ -119,3 +119,252 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Animated background effects for Wrapped page */
+@keyframes gradientShift {
+  0% {
+    filter: hue-rotate(0deg) brightness(1);
+    opacity: 0.4;
+  }
+  50% {
+    filter: hue-rotate(15deg) brightness(1.2);
+    opacity: 0.5;
+  }
+  100% {
+    filter: hue-rotate(30deg) brightness(1);
+    opacity: 0.4;
+  }
+}
+
+@keyframes fluidGradient {
+  0% {
+    filter: hue-rotate(0deg) brightness(1) contrast(1);
+    opacity: 0.5;
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    filter: hue-rotate(15deg) brightness(1.1) contrast(1.05);
+    opacity: 0.6;
+    transform: scale(1.05) rotate(1deg);
+  }
+  50% {
+    filter: hue-rotate(30deg) brightness(1.2) contrast(1.1);
+    opacity: 0.7;
+    transform: scale(1.1) rotate(0deg);
+  }
+  75% {
+    filter: hue-rotate(15deg) brightness(1.1) contrast(1.05);
+    opacity: 0.6;
+    transform: scale(1.05) rotate(-1deg);
+  }
+  100% {
+    filter: hue-rotate(0deg) brightness(1) contrast(1);
+    opacity: 0.5;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes meshShift {
+  0% {
+    filter: hue-rotate(0deg) saturate(1);
+    transform: scale(1) rotate(0deg);
+  }
+  33% {
+    filter: hue-rotate(15deg) saturate(1.2);
+    transform: scale(1.05) rotate(1deg);
+  }
+  66% {
+    filter: hue-rotate(30deg) saturate(1.4);
+    transform: scale(1.1) rotate(-1deg);
+  }
+  100% {
+    filter: hue-rotate(45deg) saturate(1.6);
+    transform: scale(1.15) rotate(0deg);
+  }
+}
+
+@keyframes noisePan {
+  0% { background-position: 0% 0%; }
+  25% { background-position: 100% 0%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) translateX(0px); }
+  50% { transform: translateY(-10px) translateX(5px); }
+  100% { transform: translateY(0px) translateX(0px); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 0.5; }
+}
+
+@keyframes shimmerLines {
+  0% { opacity: 0; transform: translateX(-100%); }
+  50% { opacity: 0.5; }
+  100% { opacity: 0; transform: translateX(100%); }
+}
+
+/* Apple Music Replay style animations */
+@keyframes appleReveal {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes appleGlow {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes appleRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes appleSlideIn {
+  0% { transform: translateX(-100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes appleNumberCount {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes appleBackgroundPulse {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.apple-music-bg {
+  background: linear-gradient(135deg, #000000, #121212, #1e1e1e);
+  background-size: 200% 200%;
+  animation: appleBackgroundPulse 15s ease infinite;
+}
+
+.apple-music-text {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+.apple-music-number {
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.apple-music-bg {
+  background: linear-gradient(45deg, #000, #111);
+  position: relative;
+  overflow: hidden;
+}
+
+.apple-music-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  z-index: 1;
+  animation: pulse 8s infinite alternate;
+}
+
+.apple-music-bg::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  z-index: 1;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+.apple-music-text {
+  font-family: var(--font-instrument-sans);
+  letter-spacing: -0.02em;
+}
+
+.apple-music-number {
+  font-family: var(--font-instrument-sans);
+  letter-spacing: -0.05em;
+}
+
+/* Apple Music Replay Animation Effects */
+.apple-music-progress {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.apple-music-progress-inner {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 3px;
+  transition: width 0.3s ease-out;
+}
+
+@keyframes fadeScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.apple-music-circle {
+  animation: glowPulse 2s infinite;
+}
+
+.apple-music-slide {
+  animation: fadeScale 0.5s ease-out;
+}
