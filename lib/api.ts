@@ -247,7 +247,7 @@ export const logout = (): void => {
 /**
  * Set default semester setting
  */
-export const setDefaultSemester = async (semesterId: string = "0"): Promise<any> => {
+export const setDefaultSemester = async (semesterId: string = "0"): Promise<unknown> => {
   try {
     const data = await authenticatedRequest(
       `${API_BASE_URL}/user/setting/default_semester`,
@@ -268,7 +268,7 @@ export const setDefaultSemester = async (semesterId: string = "0"): Promise<any>
 /**
  * Set default academic year setting
  */
-export const setDefaultAcademicYear = async (academicYearId: string = "0"): Promise<any> => {
+export const setDefaultAcademicYear = async (academicYearId: string = "0"): Promise<unknown> => {
   try {
     const data = await authenticatedRequest(
       `${API_BASE_URL}/user/setting/default_academic_year`,

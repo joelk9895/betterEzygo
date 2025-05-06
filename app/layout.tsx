@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Instrument_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
@@ -18,12 +18,15 @@ export const metadata: Metadata = {
   title: "Better Ezygo Dashboard",
   description: "Student attendance dashboard for tracking course attendance",
   manifest: "/manifest.json",
-  themeColor: "#4f46e5",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Better Ezygo",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#4f46e5",
 };
 
 export default function RootLayout({

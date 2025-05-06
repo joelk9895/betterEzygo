@@ -1,15 +1,16 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+// This component contains the actual login form and logic
+function LoginContent() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [redirectPath, setRedirectPath] = useState("/");
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // useSearchParams is used here
   
   useEffect(() => {
     // Check if there's a redirect parameter in the URL
@@ -107,5 +108,14 @@ export default function LoginPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+// The page component now wraps LoginContent in Suspense
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50 px-4"><p className="text-gray-600 font-[family-name:var(--font-instrument-sans)]">Loading page...</p></div>}> 
+      <LoginContent />
+    </Suspense>
   );
 }

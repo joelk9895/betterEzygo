@@ -53,7 +53,7 @@ function CourseCard({ course }: { course: Course }) {
   let absent = 0;
   let total = 0;
   let courseName = course.name;
-  let courseCode = course.code;
+  const courseCode = course.code;
   let skippableClasses = 0;
   
   if (attendance) {

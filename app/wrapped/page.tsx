@@ -48,7 +48,6 @@ export default function WrappedPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [perfectCourses, setPerfectCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [slide, setSlide] = useState(0);
 
   useEffect(() => {
@@ -68,7 +67,6 @@ export default function WrappedPage() {
 
     async function fetchAllCourses() {
       setLoading(true);
-      setError("");
       
       // First check if user is authenticated
       if (!checkAuth()) {
@@ -120,12 +118,12 @@ export default function WrappedPage() {
         setCourses(validCourses);
         setPerfectCourses(coursesWithPerfectAttendance);
       } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "Error fetching data");
+        console.error(e);
       }
       setLoading(false);
     }
     fetchAllCourses();
-  }, []);
+  }, [router]);
 
   // Calculate stats
   const totalPresent = courses.reduce((sum, c) => sum + (c.attendance?.present ?? 0), 0);
@@ -152,18 +150,7 @@ export default function WrappedPage() {
     ? Math.round(courses.reduce((sum, course) => sum + (course.attendance?.persantage ?? 0), 0) / courses.length) 
     : 0;
 
-  // Import html2canvas for screenshot functionality
-  const [html2canvasLoaded, setHtml2canvasLoaded] = useState(false);
-  
-  useEffect(() => {
-    // Dynamically import html2canvas when component mounts
-    import('html2canvas').then(() => {
-      setHtml2canvasLoaded(true);
-    }).catch(err => {
-      console.error('Failed to load html2canvas:', err);
-    });
-  }, []);
-  
+
   // Function to create a summary image
   const createSummaryImage = () => {
     // Create a canvas element - using Instagram story dimensions (9:16 ratio)
@@ -181,7 +168,7 @@ export default function WrappedPage() {
     const gradientPool = [
       {
         name: 'Sunset',
-        create: (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+        create: (ctx: CanvasRenderingContext2D, w: number) => {
           const radius = w * 0.9;
           const grad = ctx.createRadialGradient(w / 2, 0, 0, w / 2, 0, radius);
           grad.addColorStop(0, '#c2410c'); // deep burnt orange
@@ -193,7 +180,7 @@ export default function WrappedPage() {
       },
       {
         name: 'Aqua',
-        create: (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+        create: (ctx: CanvasRenderingContext2D, w: number) => {
           const radius = w * 0.9;
           const grad = ctx.createRadialGradient(w / 2, 0, 0, w / 2, 0, radius);
           grad.addColorStop(0, '#134e4a'); // deep teal
@@ -205,7 +192,7 @@ export default function WrappedPage() {
       },
       {
         name: 'Lavender',
-        create: (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+        create: (ctx: CanvasRenderingContext2D, w: number) => {
           const radius = w * 0.9;
         const grad = ctx.createRadialGradient(w / 2, 0, 0, w / 2, 0, radius);
         grad.addColorStop(0, 'hsl(238, 98.90%, 63.50%)'); // Lavender with opacity
@@ -217,7 +204,7 @@ export default function WrappedPage() {
       },
       {
         name: 'Peach',
-        create: (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+        create: (ctx: CanvasRenderingContext2D, w: number) => {
           const radius = w * 0.9;
           const grad = ctx.createRadialGradient(w / 2, 0, 0, w / 2, 0, radius);
           grad.addColorStop(0, '#ad3a00'); // dark peach
@@ -229,7 +216,7 @@ export default function WrappedPage() {
       },
       {
         name: 'Midnight',
-        create: (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+        create: (ctx: CanvasRenderingContext2D, w: number) => {
           const radius = w * 0.9;
           const grad = ctx.createRadialGradient(w / 2, 0, 0, w / 2, 0, radius);
           grad.addColorStop(0, '#18181b'); // deep gray-black
@@ -251,7 +238,7 @@ export default function WrappedPage() {
     ctx.rect(0, 0, 1080, 1920);
     ctx.closePath();
     ctx.clip();
-    ctx.fillStyle = selectedGradient.create(ctx, 1080, 1920);
+    ctx.fillStyle = selectedGradient.create(ctx, 1080);
     ctx.fillRect(0, 0, 1080, 1920);
     ctx.restore();
 
@@ -265,7 +252,7 @@ export default function WrappedPage() {
     // We'll reconstruct the gradient using the same stops
     // Get the color stops from the selectedGradient
     const bottomRadius = 1080 * 0.9;
-    let bottomGrad = ctx.createRadialGradient(1080, 1920, 0, 1080, 1920, bottomRadius);
+    const bottomGrad = ctx.createRadialGradient(1080, 1920, 0, 1080, 1920, bottomRadius);
     if (selectedGradient.name === 'Sunset') {
       bottomGrad.addColorStop(0, '#c2410c');
       bottomGrad.addColorStop(0.5, '#e76f1c');
@@ -409,7 +396,6 @@ export default function WrappedPage() {
     let worstCourseName = 'N/A';
     let worstCoursePercentage = 100;
     const perfectCourses: string[] = [];
-    let totalClasses = 0;
     let totalPresent = 0;
     let totalAbsent = 0;
 
@@ -420,8 +406,7 @@ export default function WrappedPage() {
           const present = course.attendance.present || 0;
           const absent = course.attendance.absent || 0;
           totalPresent += present;
-          totalAbsent += absent;
-          totalClasses += (present + absent);
+          totalAbsent += absent
         }
       });
 
@@ -505,7 +490,6 @@ export default function WrappedPage() {
     // Perfect attendance card (if applicable) - positioned first
     let cardY = 1050;
     const cardWidth = Math.min(900, canvas.width - 80);
-    const cardHeight = 220;
     const cardX = (canvas.width - cardWidth) / 2;
     const maxWidth = 700;
 
@@ -642,10 +626,7 @@ export default function WrappedPage() {
     return canvas.toDataURL('image/png');
   };
 
-  const [caption, setCaption] = useState('Check out my Attendance Wrapped! #MECWrapped');
-  const [sharing, setSharing] = useState(false);
-
-  const captureAndShareSummary = async (e: React.MouseEvent, shareType?: string) => {
+  const captureAndShareSummary = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     // Generate the image
@@ -1040,7 +1021,7 @@ export default function WrappedPage() {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.8 }}
                 >
-                  You're {getFunComparison(bestCourse.attendance?.persantage ?? 0)}
+                  You&apos;re {getFunComparison(bestCourse.attendance?.persantage ?? 0)}
                 </motion.div>
                 
                 <motion.div 
@@ -1184,7 +1165,7 @@ export default function WrappedPage() {
           transition={{ delay: 0.7, duration: 0.6 }}
           className="mt-6 text-2xl text-white font-[family-name:var(--font-instrument-sans)] font-bold"
         >
-          That's a wrap for 2025!
+          That&apos;s a wrap for this year!
         </motion.div>
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -1269,9 +1250,6 @@ export default function WrappedPage() {
   },
 ].filter(Boolean);
 
-  // Progress bar width - Spotify style
-  const progress = ((slide + 1) / slides.length) * 100;
-
   // Define color themes for each slide that will blend together
   const slideThemes = [
     { primary: 'var(--neopop-accent)', secondary: 'var(--neopop-accent-dark)', accent: 'var(--neopop-accent-light)' },
@@ -1285,8 +1263,6 @@ export default function WrappedPage() {
   
   // Calculate the current theme and next theme for smooth transitions
   const currentTheme = slideThemes[slide % slideThemes.length];
-  const nextTheme = slideThemes[(slide + 1) % slideThemes.length];
-
   // Show loading animation while data is being fetched
   if (loading) {
     return (
