@@ -406,7 +406,7 @@ export default function WrappedPage() {
           const present = course.attendance.present || 0;
           const absent = course.attendance.absent || 0;
           totalPresent += present;
-          totalAbsent += absent
+          totalAbsent += absent;
         }
       });
 
@@ -596,10 +596,12 @@ export default function WrappedPage() {
     currentY += 40; // 20px font + 20px spacing
 
     // Course percentage - positioned to the right side for contrast
-    ctx.textAlign = 'right';
-    ctx.font = 'italic 28px "Instrument Sans", sans-serif';
-    ctx.fillStyle = 'rgba(0,0,0,0.7)';
-    ctx.fillText(`${worstCoursePercentage.toFixed(0)}%`, cardX + cardWidth - cardPadding, currentY - 40); // Position based on currentY
+    if (worstCoursePercentage <= 78) {
+      ctx.textAlign = 'right';
+      ctx.font = 'italic 28px "Instrument Sans", sans-serif';
+      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      ctx.fillText(`${worstCoursePercentage.toFixed(0)}%`, cardX + cardWidth - cardPadding, currentY - 40); // Position based on currentY
+    }
 
     // Restore original text alignment
     ctx.textAlign = originalTextAlign;
